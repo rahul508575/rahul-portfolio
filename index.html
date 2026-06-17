@@ -108,9 +108,117 @@
   /* HERO */
   #hero {
     min-height: 100vh;
-    display: flex; flex-direction: column;
-    justify-content: center; padding: 0 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 4rem;
     position: relative; overflow: hidden;
+    gap: 4rem;
+  }
+  .hero-left {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    z-index: 1;
+  }
+  .hero-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.8s forwards;
+  }
+  .hero-image-wrapper {
+    position: relative;
+    width: 380px; height: 460px;
+  }
+  .hero-image-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 1px solid rgba(255,255,255,0.15);
+    z-index: 0;
+  }
+  .hero-image-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 100%; height: 100%;
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: -1;
+  }
+  .hero-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    position: relative; z-index: 1;
+    filter: grayscale(20%) contrast(1.05);
+    transition: filter 0.4s;
+  }
+  .hero-img:hover { filter: grayscale(0%) contrast(1.1); }
+  /* Dark gradient overlay on image */
+  .hero-image-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.1) 0%,
+      rgba(0,0,0,0) 40%,
+      rgba(0,0,0,0.5) 100%
+    );
+    z-index: 2;
+  }
+  /* Glow behind image */
+  .hero-image-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    z-index: 0;
+    filter: blur(30px);
+  }
+  /* Image placeholder when no image */
+  .hero-img-placeholder {
+    width: 100%; height: 100%;
+    background: var(--gray-faint);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1rem; position: relative; z-index: 1;
+    border: 1px dashed rgba(255,255,255,0.15);
+  }
+  .hero-img-placeholder svg { opacity: 0.3; }
+  .hero-img-placeholder p {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--gray-mid);
+    letter-spacing: 0.15em;
+    text-align: center;
+    line-height: 1.8;
+  }
+  /* Badge on image */
+  .hero-badge {
+    position: absolute;
+    bottom: 1.5rem; left: -1.5rem;
+    background: var(--black);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 0.8rem 1.2rem;
+    z-index: 3;
+    backdrop-filter: blur(10px);
+  }
+  .hero-badge-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--gray-light);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .hero-badge-value {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
   }
   .hero-label {
     font-family: var(--font-mono);
@@ -121,6 +229,7 @@
     margin-bottom: 2rem;
     opacity: 0;
     animation: fadeUp 0.8s ease 0.3s forwards;
+    grid-column: 1;
   }
   .hero-name {
     font-family: var(--font-display);
@@ -175,6 +284,7 @@
 
   .hero-scroll {
     position: absolute; bottom: 2.5rem; left: 4rem;
+    grid-column: 1;
     display: flex; align-items: center; gap: 1rem;
     font-family: var(--font-mono);
     font-size: 0.7rem;
@@ -533,11 +643,21 @@
   .reveal-delay-4 { transition-delay: 0.4s; }
 
   /* Mobile */
+  @media (max-width: 900px) {
+    #hero {
+      grid-template-columns: 1fr;
+      padding: 6rem 1.5rem 4rem;
+      gap: 3rem;
+    }
+    .hero-right { order: -1; }
+    .hero-image-wrapper { width: 260px; height: 320px; }
+    .hero-badge { left: 0; bottom: -1rem; }
+    .hero-scroll { left: 1.5rem; }
+  }
   @media (max-width: 768px) {
     nav { padding: 1.2rem 1.5rem; }
     .nav-links { display: none; }
-    #hero, section { padding-left: 1.5rem; padding-right: 1.5rem; }
-    .hero-scroll { left: 1.5rem; }
+    section { padding-left: 1.5rem; padding-right: 1.5rem; }
     .section-divider { margin: 0 1.5rem; }
     .exp-item { grid-template-columns: 1fr; gap: 1rem; }
     footer { padding: 2rem 1.5rem; }
@@ -568,13 +688,36 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-grid"></div>
-  <div class="hero-label">Frontend Developer · New Delhi, India</div>
-  <h1 class="hero-name">Rahul<br/><span>Kumar.</span></h1>
-  <p class="hero-tagline">I build <span id="typewriter"></span></p>
-  <div class="hero-cta">
-    <a href="#projects" class="btn btn-primary">View Projects</a>
-    <a href="#contact" class="btn btn-outline">Get In Touch</a>
+
+  <!-- LEFT: Content -->
+  <div class="hero-left">
+    <div class="hero-label">Frontend Developer · New Delhi, India</div>
+    <h1 class="hero-name">Rahul<br/><span>Kumar.</span></h1>
+    <p class="hero-tagline">I build <span id="typewriter"></span></p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="#contact" class="btn btn-outline">Get In Touch</a>
+    </div>
   </div>
+
+  <!-- RIGHT: Image -->
+  <div class="hero-right">
+    <div class="hero-image-wrapper">
+      <div class="hero-image-glow"></div>
+      <!-- Apni image yahan daalo: src="your-photo.jpg" -->
+      <img class="hero-img" src="assests\rahul.png" alt="Rahul Kumar" />
+      <div class="hero-img-placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <!-- <p>APNI PHOTO<br/>YAHAN DAALO<br/><br/>src="your-photo.jpg"</p> -->
+      </div>
+      <div class="hero-image-overlay"></div>
+      <div class="hero-badge">
+        <div class="hero-badge-title">Experience</div>
+        <div class="hero-badge-value">3+ Years</div>
+      </div>
+    </div>
+  </div>
+
   <div class="hero-scroll">
     <div class="scroll-line"></div>
     <span>Scroll to explore</span>
